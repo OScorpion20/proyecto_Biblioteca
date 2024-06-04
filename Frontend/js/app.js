@@ -1,6 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-  fetchBooks();
-
   const registerForm = document.getElementById('register-form');
   if (registerForm) {
     registerForm.addEventListener('submit', async (event) => {
@@ -10,51 +8,37 @@ document.addEventListener('DOMContentLoaded', () => {
       const password = document.getElementById('password').value;
 
       try {
-        const response = await fetch('http://localhost:5000/api/users', {
+        const response = await fetch('/api/users', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ name, email, password })
         });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
-        alert(data.message);
+        if (response.status === 201) {
+          alert('Aguardado exitosamente');
+          // Limpia el formulario después de un registro exitoso
+          registerForm.reset();
+        } else {
+          alert(data.message);
+        }
       } catch (error) {
         console.error('Error registering user:', error);
+        alert('Error al registrar usuario');
       }
     });
   }
-
-  const loanForm = document.getElementById('loan-form');
-  if (loanForm) {
-    loanForm.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const userId = document.getElementById('userId').value;
-      const bookId = document.getElementById('bookId').value;
-
-      try {
-        const response = await fetch('http://localhost:5000/api/loans', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ user: userId, book: bookId })
-        });
-        const data = await response.json();
-        alert(data.message);
-        fetchLoans();
-      } catch (error) {
-        console.error('Error creating loan:', error);
-      }
-    });
-  }
-
-  fetchLoans();
 });
 
 async function fetchBooks() {
   try {
-    const response = await fetch('http://localhost:5000/api/books');
+    const response = await fetch('/api/books');
     const books = await response.json();
 
     const bookList = document.getElementById('book-list');
@@ -72,7 +56,7 @@ async function fetchBooks() {
 
 async function fetchLoans() {
   try {
-    const response = await fetch('http://localhost:5000/api/loans');
+    const response = await fetch('/api/loans');
     const loans = await response.json();
 
     const loanList = document.getElementById('loan-list');
